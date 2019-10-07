@@ -1,0 +1,57 @@
+---
+title: "Exercise 3"
+author: "Tae Wha Seong"
+date: '2019 10 6 '
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Mapping in practice
+
+Check the online available manuals for the mappers
+* bowtie2  
+* tophat2  
+* STAR  
+
+and answer the questions  
+* How do these mappers score alignments?  
+* What reporting options are available? 
+
+1. Bowtie2
+Q1 For the end-to-end alignment method,the best possible alignment score is 0. A mismatch base receives a -6 deduction. For an open gap, there is a -5 penalty. For each extension, there is a -3 penalty. For example, a length 2 open gap receives a -11 penalty. For local alignment, the mismatch and open gap penalites are the same as the end-to-end alighment method. The difference is that base matches will receive a bonus of +2. Thus, the best possible score for a local alignment is 2 times the length of the read.
+Q2 Bowtie 2 is designed to search for distinct and valid alignments. By default, it reports the best alignment in terms of alignment score. However, it is not gauranteed that it is the best alignment because there are limits on the computational search efforts. The k mode can search up to a predefined number of alignments and all of them are reported.Lastly the a mode can search for and report all the possible alignments.
+
+2. Tophat2
+Q1 As Tophat2 is based on the Bowtie method, it will score alignments in the same manner as with the Bowtie method.
+Q2 The best possible alignment can be found and reported at the expense of running time. If there are multiple alignments with the same highest score, tophat may report only a predefined number of alignments randomly. Up to 20 alignments with a lower score can be reported.
+
+3. STAR
+Q1 A gap is scored 0. A non-canonical gap is scored -8. A gap at the AT/AC junction and GC/AG junction has a score of -8 and -4 respectively. Deletions and insertions have an open penalty of -2 and -2 for each base. 
+Q2 For multiple alignments, you can report only the ones with the best scores. There is also a random option that allows the user to print multiple alignments in random order. A random seed option will generate changing orders and selections of the primary alignment depending on the seed number. Lastly, there is also an option of displaying only a certain number of alignments.
+
+```{r, eval=FALSE}
+# install BioC packages via BiocManager (not run)
+install.packages("BiocManager")
+BiocManager::install("Rsubread")
+BiocManager::install("BSgenome.Scerevisiae.UCSC.sacCer3")
+BiocManager::install("TxDb.Scerevisiae.UCSC.sacCer3.sgdGene")
+library(Rsubread)
+library(BSgenome.Scerevisiae.UCSC.sacCer3)
+genome <- BSgenome.Scerevisiae.UCSC.sacCer3
+dir.create("exercise3")
+out1_file <- file.path("exercise3", "Scerevisiae.fasta")
+export(genome, out1_file)
+buildindex(basename="reference_index",reference="Scerevisiae.fasta")
+align.stat <- align(index="reference_index",readfile1="file1.fastq.gz",output_file="alignResults.BAM", nthreads = 4, nTrim5 = 5, nTrim3 = 5)
+```
+
+## Mapping with R
+
+The mapping rate is 90.3%. After trimming it goes up to 92%.
+
+```{r pressure, echo=FALSE}
+```
+
